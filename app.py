@@ -3,7 +3,6 @@
 
 # In[ ]:
 
-
 import streamlit as st
 from transformers import GPT2LMHeadModel, GPT2Tokenizer, MarianMTModel, MarianTokenizer
 
@@ -58,9 +57,9 @@ def generate_text(input_text, language):
         f"Details: {translated_input}\n\n"
         f"Letter/Agreement:\n"
         f"Dear [Recipient],\n\n"
-        f"I am writing to inform you about [specific reason]. "
-        f"Due to [specific situation], we need to [specific action required]. "
-        f"Please let us know if you need any further information.\n\n"
+        f"I am writing to inform you about the closure of our company and the subsequent need to close our bank account. "
+        f"Due to the closure of the company, we need to close our bank account associated with the company. "
+        f"Please let us know if you need any further information or if there are any additional steps we need to take.\n\n"
         f"Thank you for your understanding.\n\n"
         f"Sincerely,\n"
         f"[Your Name]\n"
@@ -100,6 +99,7 @@ def translate_text(text, model, tokenizer):
     outputs = model.generate(input_ids)
     translated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return translated_text
+
 
 
 
