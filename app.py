@@ -51,12 +51,19 @@ def generate_text(input_text, language):
     else:
         translated_input = input_text
     
-    # Construct a guiding prompt for the letter
+    # Construct a detailed and specific prompt for the letter
     prompt = (
         f"You are a Writing Master. Your task is to write a formal letter or agreement based on the provided details. "
         f"Make sure the writing is clear, simple, and easy to understand.\n\n"
         f"Details: {translated_input}\n\n"
         f"Letter/Agreement:\n"
+        f"Dear [Recipient],\n\n"
+        f"I am writing to inform you about [specific reason]. "
+        f"Due to [specific situation], we need to [specific action required]. "
+        f"Please let us know if you need any further information.\n\n"
+        f"Thank you for your understanding.\n\n"
+        f"Sincerely,\n"
+        f"[Your Name]\n"
     )
     
     # Generate text in English using GPT-2
