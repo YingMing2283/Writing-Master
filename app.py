@@ -9,7 +9,7 @@ from transformers import GPT2LMHeadModel, GPT2Tokenizer, MarianMTModel, MarianTo
 # Function to load the GPT-2 model and tokenizer
 @st.cache(allow_output_mutation=True)
 def load_gpt2_model():
-    model_name = "gpt2"
+    model_name = "gpt2-large"
     model = GPT2LMHeadModel.from_pretrained(model_name)
     tokenizer = GPT2Tokenizer.from_pretrained(model_name)
     return model, tokenizer
