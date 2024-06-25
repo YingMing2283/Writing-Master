@@ -51,7 +51,7 @@ def generate_text(input_text, language):
     else:
         translated_input = input_text
     
-    # Construct a detailed prompt for the letter
+    # Construct a guiding prompt for the letter
     prompt = (
         f"You are a Writing Master. Your task is to write a formal letter or agreement based on the provided details. "
         f"Make sure the writing is clear, simple, and easy to understand.\n\n"
@@ -75,6 +75,24 @@ if st.button("Generate"):
     generated_text = generate_text(input_text, language)
     st.write("Generated Text:")
     st.write(generated_text)
+
+# Function to load MarianMT models for Malay and Chinese translation
+@st.cache(allow_output_mutation=True)
+def load_translation_model(language):
+    if language == "Malay":
+        model_name = "Helsinki-NLP/opus-mt-en-ms"
+    elif language == "Chinese":
+        model_name = "Helsinki-NLP/opus-mt-en-zh"
+    model = MarianMTModel.from_pretrained(model_name)
+    tokenizer = MarianTokenizer.from_pretrained(model_name)
+    return model, tokenizer
+
+# Function to translate text
+def translate_text(text, model, tokenizer):
+    input_ids = tokenizer.encode(text, return_tensors="pt")
+    outputs = model.generate(input_ids)
+    translated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    return translated_text
 
 
 
