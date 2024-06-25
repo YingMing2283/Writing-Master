@@ -6,9 +6,9 @@
 import streamlit as st
 from transformers import GPT2LMHeadModel, GPT2Tokenizer, MarianMTModel, MarianTokenizer
 
-# Function to load the GPT-2 model and tokenizer
+# Function to load the GPT-2 Large model and tokenizer
 @st.cache(allow_output_mutation=True)
-def load_gpt2_model():
+def load_gpt2_large_model():
     model_name = "gpt2-large"
     model = GPT2LMHeadModel.from_pretrained(model_name)
     tokenizer = GPT2Tokenizer.from_pretrained(model_name)
@@ -32,8 +32,8 @@ def translate_text(text, model, tokenizer):
     translated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return translated_text
 
-# Load the GPT-2 model and tokenizer
-gpt2_model, gpt2_tokenizer = load_gpt2_model()
+# Load the GPT-2 Large model and tokenizer
+gpt2_large_model, gpt2_large_tokenizer = load_gpt2_large_model()
 
 # Streamlit interface
 st.title("Writing Master")
@@ -53,22 +53,23 @@ def generate_text(input_text, language):
     # Construct a detailed and specific prompt for the letter
     prompt = (
         f"You are a Writing Master. Your task is to write a formal letter or agreement based on the provided details. "
-        f"Make sure the writing is clear, simple, and easy to understand.\n\n"
+        f"Make sure the writing is clear, simple, and easy to understand. Use the following template as a guide:\n\n"
         f"Details: {translated_input}\n\n"
-        f"Letter/Agreement:\n"
+        f"Example:\n\n"
         f"Dear [Recipient],\n\n"
         f"I am writing to inform you about the closure of our company and the subsequent need to close our bank account. "
         f"Due to the closure of the company, we need to close our bank account associated with the company. "
         f"Please let us know if you need any further information or if there are any additional steps we need to take.\n\n"
         f"Thank you for your understanding.\n\n"
         f"Sincerely,\n"
-        f"[Your Name]\n"
+        f"[Your Name]\n\n"
+        f"Now write a similar letter based on the provided details:\n\n"
     )
     
-    # Generate text in English using GPT-2
-    input_ids = gpt2_tokenizer.encode(prompt, return_tensors='pt')
-    output = gpt2_model.generate(input_ids, max_length=300, num_return_sequences=1, temperature=0.7, top_p=0.9, top_k=50)
-    generated_text = gpt2_tokenizer.decode(output[0], skip_special_tokens=True)
+    # Generate text in English using GPT-2 Large
+    input_ids = gpt2_large_tokenizer.encode(prompt, return_tensors='pt')
+    output = gpt2_large_model.generate(input_ids, max_length=300, num_return_sequences=1, temperature=0.7, top_p=0.9, top_k=50)
+    generated_text = gpt2_large_tokenizer.decode(output[0], skip_special_tokens=True)
     
     if language != "English":
         # Translate the generated text back to the selected language
