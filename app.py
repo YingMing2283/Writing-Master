@@ -2,128 +2,141 @@
  "cells": [
   {
    "cell_type": "code",
-   "execution_count": 1,
-   "id": "17208142-c70f-429d-a923-6a6a16aeccd4",
+   "execution_count": null,
+   "id": "85b2af21-864e-4d85-a85c-cb130d6aee07",
    "metadata": {},
    "outputs": [
     {
-     "name": "stdout",
+     "name": "stderr",
      "output_type": "stream",
      "text": [
-      "Requirement already satisfied: openai in c:\\users\\user\\new folder\\lib\\site-packages (1.13.3)\n",
-      "Requirement already satisfied: flask in c:\\users\\user\\new folder\\lib\\site-packages (2.2.5)\n",
-      "Requirement already satisfied: anyio<5,>=3.5.0 in c:\\users\\user\\new folder\\lib\\site-packages (from openai) (4.2.0)\n",
-      "Requirement already satisfied: distro<2,>=1.7.0 in c:\\users\\user\\new folder\\lib\\site-packages (from openai) (1.8.0)\n",
-      "Requirement already satisfied: httpx<1,>=0.23.0 in c:\\users\\user\\new folder\\lib\\site-packages (from openai) (0.27.0)\n",
-      "Requirement already satisfied: pydantic<3,>=1.9.0 in c:\\users\\user\\new folder\\lib\\site-packages (from openai) (2.7.0)\n",
-      "Requirement already satisfied: sniffio in c:\\users\\user\\new folder\\lib\\site-packages (from openai) (1.3.0)\n",
-      "Requirement already satisfied: tqdm>4 in c:\\users\\user\\new folder\\lib\\site-packages (from openai) (4.65.0)\n",
-      "Requirement already satisfied: typing-extensions<5,>=4.7 in c:\\users\\user\\new folder\\lib\\site-packages (from openai) (4.9.0)\n",
-      "Requirement already satisfied: Werkzeug>=2.2.2 in c:\\users\\user\\new folder\\lib\\site-packages (from flask) (2.2.3)\n",
-      "Requirement already satisfied: Jinja2>=3.0 in c:\\users\\user\\new folder\\lib\\site-packages (from flask) (3.1.3)\n",
-      "Requirement already satisfied: itsdangerous>=2.0 in c:\\users\\user\\new folder\\lib\\site-packages (from flask) (2.0.1)\n",
-      "Requirement already satisfied: click>=8.0 in c:\\users\\user\\new folder\\lib\\site-packages (from flask) (8.1.7)\n",
-      "Requirement already satisfied: idna>=2.8 in c:\\users\\user\\new folder\\lib\\site-packages (from anyio<5,>=3.5.0->openai) (3.4)\n",
-      "Requirement already satisfied: colorama in c:\\users\\user\\new folder\\lib\\site-packages (from click>=8.0->flask) (0.4.6)\n",
-      "Requirement already satisfied: certifi in c:\\users\\user\\new folder\\lib\\site-packages (from httpx<1,>=0.23.0->openai) (2024.2.2)\n",
-      "Requirement already satisfied: httpcore==1.* in c:\\users\\user\\new folder\\lib\\site-packages (from httpx<1,>=0.23.0->openai) (1.0.4)\n",
-      "Requirement already satisfied: h11<0.15,>=0.13 in c:\\users\\user\\new folder\\lib\\site-packages (from httpcore==1.*->httpx<1,>=0.23.0->openai) (0.14.0)\n",
-      "Requirement already satisfied: MarkupSafe>=2.0 in c:\\users\\user\\new folder\\lib\\site-packages (from Jinja2>=3.0->flask) (2.1.3)\n",
-      "Requirement already satisfied: annotated-types>=0.4.0 in c:\\users\\user\\new folder\\lib\\site-packages (from pydantic<3,>=1.9.0->openai) (0.6.0)\n",
-      "Requirement already satisfied: pydantic-core==2.18.1 in c:\\users\\user\\new folder\\lib\\site-packages (from pydantic<3,>=1.9.0->openai) (2.18.1)\n",
-      "Note: you may need to restart the kernel to use updated packages.\n"
+      "2024-06-25 20:04:51.631 \n",
+      "  \u001b[33m\u001b[1mWarning:\u001b[0m to view this Streamlit app on a browser, run it with the following\n",
+      "  command:\n",
+      "\n",
+      "    streamlit run C:\\Users\\user\\New folder\\Lib\\site-packages\\ipykernel_launcher.py [ARGUMENTS]\n",
+      "2024-06-25 20:04:51.631 \n",
+      "`st.cache` is deprecated and will be removed soon. Please use one of Streamlit's new caching commands, `st.cache_data` or `st.cache_resource`.\n",
+      "More information [in our docs](https://docs.streamlit.io/develop/concepts/architecture/caching).\n",
+      "\n",
+      "**Note**: The behavior of `st.cache` was updated in Streamlit 1.36 to the new caching logic used by `st.cache_data` and `st.cache_resource`.\n",
+      "This might lead to some problems or unexpected behavior in certain edge cases.\n",
+      "\n",
+      "2024-06-25 20:04:51.631 \n",
+      "`st.cache` is deprecated and will be removed soon. Please use one of Streamlit's new caching commands, `st.cache_data` or `st.cache_resource`.\n",
+      "More information [in our docs](https://docs.streamlit.io/develop/concepts/architecture/caching).\n",
+      "\n",
+      "**Note**: The behavior of `st.cache` was updated in Streamlit 1.36 to the new caching logic used by `st.cache_data` and `st.cache_resource`.\n",
+      "This might lead to some problems or unexpected behavior in certain edge cases.\n",
+      "\n"
      ]
-    }
-   ],
-   "source": [
-    "pip install openai flask\n"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 2,
-   "id": "4bfdd9c8-db5f-41d3-bac8-1fe5fa7696cd",
-   "metadata": {},
-   "outputs": [
+    },
     {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      " * Serving Flask app '__main__'\n",
-      " * Debug mode: on\n"
-     ]
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "e6d952011e5446199baa49a4e98358c3",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "config.json:   0%|          | 0.00/665 [00:00<?, ?B/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
     },
     {
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.\n",
-      " * Running on http://127.0.0.1:5000\n",
-      "Press CTRL+C to quit\n",
-      " * Restarting with watchdog (windowsapi)\n"
+      "C:\\Users\\user\\New folder\\Lib\\site-packages\\huggingface_hub\\file_download.py:149: UserWarning: `huggingface_hub` cache-system uses symlinks by default to efficiently store duplicated files but your machine does not support them in C:\\Users\\user\\.cache\\huggingface\\hub\\models--gpt2. Caching files will still work but in a degraded version that might require more space on your disk. This warning can be disabled by setting the `HF_HUB_DISABLE_SYMLINKS_WARNING` environment variable. For more details, see https://huggingface.co/docs/huggingface_hub/how-to-cache#limitations.\n",
+      "To support symlinks on Windows, you either need to activate Developer Mode or to run Python as an administrator. In order to see activate developer mode, see this article: https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development\n",
+      "  warnings.warn(message)\n"
      ]
     },
     {
-     "ename": "SystemExit",
-     "evalue": "1",
-     "output_type": "error",
-     "traceback": [
-      "An exception has occurred, use %tb to see the full traceback.\n",
-      "\u001b[1;31mSystemExit\u001b[0m\u001b[1;31m:\u001b[0m 1\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "C:\\Users\\user\\New folder\\Lib\\site-packages\\IPython\\core\\interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.\n",
-      "  warn(\"To exit: use 'exit', 'quit', or Ctrl-D.\", stacklevel=1)\n"
-     ]
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "aa3191bf317b4f35b0aea6f0c3a18d00",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "model.safetensors:   0%|          | 0.00/548M [00:00<?, ?B/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
     }
    ],
    "source": [
-    "from flask import Flask, request, jsonify\n",
-    "import openai\n",
+    "import streamlit as st\n",
+    "from transformers import GPT2LMHeadModel, GPT2Tokenizer, MarianMTModel, MarianTokenizer\n",
     "\n",
-    "app = Flask(__name__)\n",
+    "# Function to load the GPT-2 model and tokenizer\n",
+    "@st.cache(allow_output_mutation=True)\n",
+    "def load_gpt2_model():\n",
+    "    model_name = \"gpt2\"\n",
+    "    model = GPT2LMHeadModel.from_pretrained(model_name)\n",
+    "    tokenizer = GPT2Tokenizer.from_pretrained(model_name)\n",
+    "    return model, tokenizer\n",
     "\n",
-    "openai.api_key = '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'\n",
+    "# Function to load MarianMT models for Malay and Chinese translation\n",
+    "@st.cache(allow_output_mutation=True)\n",
+    "def load_translation_model(language):\n",
+    "    if language == \"Malay\":\n",
+    "        model_name = \"Helsinki-NLP/opus-mt-en-ms\"\n",
+    "    elif language == \"Chinese\":\n",
+    "        model_name = \"Helsinki-NLP/opus-mt-en-zh\"\n",
+    "    model = MarianMTModel.from_pretrained(model_name)\n",
+    "    tokenizer = MarianTokenizer.from_pretrained(model_name)\n",
+    "    return model, tokenizer\n",
     "\n",
-    "def get_response(prompt):\n",
-    "    response = openai.Completion.create(\n",
-    "        engine=\"gpt-3.5-turbo\",  \n",
-    "        prompt=prompt,\n",
-    "        max_tokens=150,\n",
-    "        n=1,\n",
-    "        stop=None,\n",
-    "        temperature=0.7\n",
-    "    )\n",
-    "    return response.choices[0].text.strip()\n",
+    "# Function to translate text\n",
+    "def translate_text(text, model, tokenizer):\n",
+    "    input_ids = tokenizer.encode(text, return_tensors=\"pt\")\n",
+    "    outputs = model.generate(input_ids)\n",
+    "    translated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)\n",
+    "    return translated_text\n",
     "\n",
-    "@app.route('/chat', methods=['POST'])\n",
-    "def chat():\n",
-    "    data = request.json\n",
-    "    user_input = data.get('message')\n",
+    "# Load the GPT-2 model and tokenizer\n",
+    "gpt2_model, gpt2_tokenizer = load_gpt2_model()\n",
+    "\n",
+    "# Streamlit interface\n",
+    "st.title(\"Writing Master\")\n",
+    "st.write(\"A tool to help you write formal letters, agreements, etc., in English, Malay, and Chinese.\")\n",
+    "\n",
+    "language = st.selectbox(\"Select Language\", [\"English\", \"Malay\", \"Chinese\"])\n",
+    "input_text = st.text_area(\"Enter the details of the letter/agreement:\")\n",
+    "\n",
+    "if st.button(\"Generate\"):\n",
+    "    if language == \"English\":\n",
+    "        input_ids = gpt2_tokenizer.encode(input_text, return_tensors='pt')\n",
+    "        output = gpt2_model.generate(input_ids, max_length=500, num_return_sequences=1)\n",
+    "        generated_text = gpt2_tokenizer.decode(output[0], skip_special_tokens=True)\n",
+    "    else:\n",
+    "        # Translate input to English\n",
+    "        translation_model, translation_tokenizer = load_translation_model(language)\n",
+    "        translated_input = translate_text(input_text, translation_model, translation_tokenizer)\n",
+    "        \n",
+    "        # Generate text in English using GPT-2\n",
+    "        input_ids = gpt2_tokenizer.encode(translated_input, return_tensors='pt')\n",
+    "        output = gpt2_model.generate(input_ids, max_length=500, num_return_sequences=1)\n",
+    "        generated_text = gpt2_tokenizer.decode(output[0], skip_special_tokens=True)\n",
+    "        \n",
+    "        # Translate the generated text back to the selected language\n",
+    "        reverse_translation_model, reverse_translation_tokenizer = load_translation_model(language)\n",
+    "        generated_text = translate_text(generated_text, reverse_translation_model, reverse_translation_tokenizer)\n",
     "    \n",
-    "    if not user_input:\n",
-    "        return jsonify({'error': 'No message provided'}), 400\n",
-    "    \n",
-    "\n",
-    "    prompt = f\"You are TB Advisor, a chatbot specializing in tuberculosis. Answer the following question in a professional and polite manner, including citations from reputable sources: {user_input}\"\n",
-    "    \n",
-    "\n",
-    "    response = get_response(prompt)\n",
-    "    \n",
-    "    return jsonify({'response': response})\n",
-    "\n",
-    "if __name__ == '__main__':\n",
-    "    app.run(debug=True)\n"
+    "    st.write(\"Generated Text:\")\n",
+    "    st.write(generated_text)\n",
+    "\n"
    ]
   },
   {
    "cell_type": "code",
    "execution_count": null,
-   "id": "cb6d95f1-9d1a-4ab9-8587-f583eacf8935",
+   "id": "8af5897f-4668-46e3-b016-92c3d7ad0b73",
    "metadata": {},
    "outputs": [],
    "source": []
