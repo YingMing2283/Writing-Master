@@ -43,26 +43,34 @@ st.write("A tool to help you write formal letters, agreements, etc., in English,
 language = st.selectbox("Select Language", ["English", "Malay", "Chinese"])
 input_text = st.text_area("Enter the details of the letter/agreement:")
 
-if st.button("Generate"):
-    if language == "English":
-        input_ids = gpt2_tokenizer.encode(input_text, return_tensors='pt')
-        output = gpt2_model.generate(input_ids, max_length=500, num_return_sequences=1)
-        generated_text = gpt2_tokenizer.decode(output[0], skip_special_tokens=True)
-    else:
+def generate_text(input_text, language):
+    if language != "English":
         # Translate input to English
         translation_model, translation_tokenizer = load_translation_model(language)
         translated_input = translate_text(input_text, translation_model, translation_tokenizer)
-        
-        # Generate text in English using GPT-2
-        input_ids = gpt2_tokenizer.encode(translated_input, return_tensors='pt')
-        output = gpt2_model.generate(input_ids, max_length=500, num_return_sequences=1)
-        generated_text = gpt2_tokenizer.decode(output[0], skip_special_tokens=True)
-        
+    else:
+        translated_input = input_text
+    
+    # Construct a prompt for the letter
+    prompt = f"Write a formal letter with the following details:\n{translated_input}\n\nLetter:\n"
+    
+    # Generate text in English using GPT-2
+    input_ids = gpt2_tokenizer.encode(prompt, return_tensors='pt')
+    output = gpt2_model.generate(input_ids, max_length=300, num_return_sequences=1, temperature=0.7, top_p=0.9, top_k=50)
+    generated_text = gpt2_tokenizer.decode(output[0], skip_special_tokens=True)
+    
+    if language != "English":
         # Translate the generated text back to the selected language
         reverse_translation_model, reverse_translation_tokenizer = load_translation_model(language)
         generated_text = translate_text(generated_text, reverse_translation_model, reverse_translation_tokenizer)
     
+    return generated_text
+
+if st.button("Generate"):
+    generated_text = generate_text(input_text, language)
     st.write("Generated Text:")
     st.write(generated_text)
+
+
 
 
