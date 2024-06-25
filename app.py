@@ -51,8 +51,13 @@ def generate_text(input_text, language):
     else:
         translated_input = input_text
     
-    # Construct a prompt for the letter
-    prompt = f"Write a formal letter with the following details:\n{translated_input}\n\nLetter:\n"
+    # Construct a detailed prompt for the letter
+    prompt = (
+        f"You are a Writing Master. Your task is to write a formal letter or agreement based on the provided details. "
+        f"Make sure the writing is clear, simple, and easy to understand.\n\n"
+        f"Details: {translated_input}\n\n"
+        f"Letter/Agreement:\n"
+    )
     
     # Generate text in English using GPT-2
     input_ids = gpt2_tokenizer.encode(prompt, return_tensors='pt')
@@ -70,6 +75,8 @@ if st.button("Generate"):
     generated_text = generate_text(input_text, language)
     st.write("Generated Text:")
     st.write(generated_text)
+
+
 
 
 
