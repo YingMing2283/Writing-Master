@@ -2,6 +2,7 @@ import streamlit as st
 import openai
 from docx import Document
 from PyPDF2 import PdfReader
+from PIL import Image
 from langdetect import detect
 from googletrans import Translator
 
