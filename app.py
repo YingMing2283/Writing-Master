@@ -5,7 +5,7 @@ from PyPDF2 import PdfReader
 from langdetect import detect
 from googletrans import Translator
 from PIL import Image
-import io
+import pytesseract  # Ensure it's in requirements.txt if you keep this import
 
 # Set up OpenAI API key
 openai.api_key = st.secrets["API_KEY"]
@@ -30,9 +30,11 @@ def extract_text(file):
             return text if text else "No text could be extracted from the Word document."
 
         elif file.type in ["image/jpeg", "image/png"]:
-            image = Image.open(io.BytesIO(file.read()))
-            text = image.convert('L').tobytes().decode(errors='ignore')
-            return text if text.strip() else "No text could be extracted from the image."
+            image = Image.open(file)
+            # Basic image processing for better OCR
+            image = image.convert("L")  # Convert to grayscale
+            text = pytesseract.image_to_string(image)
+            return text.strip() if text else "No text could be extracted from the image."
 
         else:
             return "Unsupported file format."
