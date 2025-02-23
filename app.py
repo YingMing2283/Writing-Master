@@ -4,6 +4,7 @@ from docx import Document
 from PyPDF2 import PdfReader
 from langdetect import detect
 from googletrans import Translator
+from fpdf import FPDF  # For generating PDFs
 
 # Set up OpenAI API key
 openai.api_key = st.secrets["API_KEY"]
@@ -26,7 +27,7 @@ def extract_text(file):
     else:
         return None
 
-# Function to generate formal letters (FIXED)
+# Function to generate formal letters
 def generate_formal_letter(language, recipient, subject, content):
     prompt = (
         f"Write a formal letter in {language} to {recipient} about '{subject}'.\n"
@@ -48,7 +49,7 @@ def translate_text(text, target_language):
     translation = translator.translate(text, dest=target_language)
     return translation.text
 
-# Function to explain document content (FIXED)
+# Function to explain document content
 def explain_document(text, query):
     prompt = f"The following is a document:\n{text}\n\nAnswer this query based on the document: {query}"
     response = openai.ChatCompletion.create(
@@ -58,6 +59,15 @@ def explain_document(text, query):
         temperature=0.7
     )
     return response.choices[0].message.content.strip()
+
+# Function to create a PDF from text
+def create_pdf(text, filename):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    # Add text to PDF (multi_cell for wrapping text)
+    pdf.multi_cell(0, 10, txt=text)
+    pdf.output(filename)
 
 # Streamlit app
 def main():
@@ -75,6 +85,17 @@ def main():
             letter = generate_formal_letter(language, recipient, subject, content)
             st.write("Generated Letter:")
             st.write(letter)
+
+            # Create a PDF and provide a download button
+            pdf_filename = "formal_letter.pdf"
+            create_pdf(letter, pdf_filename)
+            with open(pdf_filename, "rb") as file:
+                st.download_button(
+                    label="Download Letter as PDF",
+                    data=file,
+                    file_name=pdf_filename,
+                    mime="application/pdf"
+                )
 
     elif option == "Translate Document":
         st.header("Translate Document")
@@ -107,4 +128,4 @@ def main():
                 st.error("Unsupported file format or unable to extract text.")
 
 if __name__ == "__main__":
-    main() 
+    main()
