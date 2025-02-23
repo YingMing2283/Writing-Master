@@ -28,8 +28,13 @@ def extract_text(file):
 
 # Function to generate formal letters (FIXED)
 def generate_formal_letter(language, recipient, subject, content):
-    prompt = f"Write a formal letter in {language} to {recipient} about {subject}. 1. Short, direct, and professional answers
-2. Clear explanations in layman's terms when needed and necessary Content: {content}"
+    prompt = (
+        f"Write a formal letter in {language} to {recipient} about '{subject}'.\n"
+        f"Content: {content}\n\n"
+        "Requirements:\n"
+        "1. Keep the answer short, direct, and professional.\n"
+        "2. Provide clear explanations in layman's terms when necessary."
+    )
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": prompt}],
