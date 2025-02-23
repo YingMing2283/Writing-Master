@@ -13,8 +13,7 @@ openai.api_key = st.secrets["API_KEY"]
 # Initialize translator
 translator = Translator()
 
-# Initialize EasyOCR reader
-reader = easyocr.Reader(['en'])
+reader = easyocr.Reader(['en', 'ch_sim', 'ms'])
 
 def extract_text(file):
     try:
@@ -33,14 +32,14 @@ def extract_text(file):
             return text if text else "No text could be extracted from the Word document."
 
         elif file.type in ["image/jpeg", "image/png"]:
-            # Convert uploaded image to bytes
+            # Convert image to bytes
             image_bytes = io.BytesIO(file.getvalue())
             result = reader.readtext(image_bytes.read(), detail=0)
             return " ".join(result) if result else "No text could be extracted from the image."
 
         else:
             return "Unsupported file format."
-    
+            
     except Exception as e:
         return f"An error occurred while extracting text: {e}"
 
