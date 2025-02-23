@@ -17,31 +17,54 @@ def extract_text(file):
         reader = PdfReader(file)
         text = ""
         for page in reader.pages:
-            text += page.extract_text()
+            text += page.extract_text() or ""
         return text
     elif file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
         doc = Document(file)
-        text = "\n".join([para.text for para in doc.paragraphs])
-        return text
+        return "\n".join([p.text for p in doc.paragraphs])
     else:
         return None
 
-# Function to generate formal letters (FIXED)
-def generate_formal_letter(language, recipient, subject, content):
-    prompt = (
-        f"Write a formal letter in {language} to {recipient} about '{subject}'.\n"
-        f"Content: {content}\n\n"
-        "Requirements:\n"
-        "1. Keep the answer short, direct, and professional.\n"
-        "2. Provide clear explanations in layman's terms when necessary."
-    )
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=500,
-        temperature=0.7
-    )
-    return response.choices[0].message.content.strip()
+# Function to generate PDF from text
+def generate_pdf(content):
+    pdf = FPDF(format='A4')
+    pdf.add_page()
+    pdf.set_auto_page_break(auto=1, margin=15)
+    pdf.set_font("Arial", size=12)
+
+    for line in content.split('\n'):
+        pdf.multi_cell(0, 10, line, align='L')
+
+    pdf_output = io.BytesIO()
+    pdf.output(pdf_output)
+    pdf_output.seek(0)
+
+    return pdf_output
+
+# Streamlit UI
+st.title("Formal Letter Generator")
+
+uploaded_file = st.file_uploader("Upload a PDF or Word document", type=["pdf", "docx"])
+if uploaded_file:
+    extracted_text = extract_text(uploaded_file)
+    if extracted_text:
+        st.text_area("Extracted Text", extracted_text, height=300)
+        language = detect(extracted_text)
+        st.write(f"Detected language: {language.upper()}")
+
+        if st.button("Generate Formal Letter"):
+            # Example: Generate a formal letter (replace with your OpenAI call if needed)
+            letter_content = f"Dear Sir/Madam,\n\nThank you for your submission. We have received the following content:\n\n{extracted_text[:500]}...\n\nSincerely,\nYour Company"
+            st.text_area("Generated Letter", letter_content, height=300)
+
+            # Create PDF and provide download button
+            pdf_file = generate_pdf(letter_content)
+            st.download_button(
+                label="Download as PDF",
+                data=pdf_file,
+                file_name="formal_letter.pdf",
+                mime="application/pdf"
+            )
 
 # Function to translate text
 def translate_text(text, target_language):
