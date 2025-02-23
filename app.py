@@ -3,6 +3,7 @@ import openai
 from docx import Document
 from PyPDF2 import PdfReader
 from PIL import Image
+import pytesseract
 from langdetect import detect
 from googletrans import Translator
 
