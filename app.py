@@ -15,22 +15,31 @@ translator = Translator()
 
 # Function to extract text from uploaded files
 def extract_text(file):
-    if file.type == "application/pdf":
-        reader = PdfReader(file)
-        text = ""
-        for page in reader.pages:
-            text += page.extract_text()
-        return text
-    elif file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        doc = Document(file)
-        text = "\n".join([para.text for para in doc.paragraphs])
-        return text
-    elif file.type == "image/jpeg" or file.type == "image/png":
-        image = Image.open(file)
-        text = pytesseract.image_to_string(image)
-        return text
-    else:
-        return None
+    try:
+        if file.type == "application/pdf":
+            reader = PdfReader(file)
+            text = ""
+            for page in reader.pages:
+                extracted_text = page.extract_text()
+                if extracted_text:
+                    text += extracted_text
+            return text if text else "No text could be extracted from the PDF."
+        
+        elif file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+            doc = Document(file)
+            text = "\n".join([para.text for para in doc.paragraphs])
+            return text if text else "No text could be extracted from the Word document."
+        
+        elif file.type in ["image/jpeg", "image/png"]:
+            image = Image.open(file)
+            text = pytesseract.image_to_string(image)
+            return text if text.strip() else "No text could be extracted from the image."
+        
+        else:
+            return "Unsupported file format. Please upload a PDF, Word document, or image."
+    
+    except Exception as e:
+        return f"An error occurred while extracting text: {str(e)}"
 
 # Function to generate formal letters (FIXED)
 def generate_formal_letter(language, recipient, subject, content):
