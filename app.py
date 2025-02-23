@@ -4,45 +4,29 @@ from docx import Document
 from PyPDF2 import PdfReader
 from langdetect import detect
 from googletrans import Translator
-import pytesseract
-from PIL import Image
 
 # Set up OpenAI API key
-openai.api_key = st.secrets["API_KEY"]
+openai.api_key = "your_openai_api_key_here"
 
 # Initialize translator
 translator = Translator()
 
-# Function to extract text from uploaded files (added JPEG support)
+# Function to extract text from uploaded files
 def extract_text(file):
-    try:
-        # For PDF files
-        if file.type == "application/pdf":
-            reader = PdfReader(file)
-            text = ""
-            for page in reader.pages:
-                text += page.extract_text()
-            return text
-        
-        # For Word documents
-        elif file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-            doc = Document(file)
-            return "\n".join([para.text for para in doc.paragraphs])
-        
-        # For JPEG/Image files (OCR)
-        elif file.type in ["image/jpeg", "image/png"]:
-            image = Image.open(file)
-            text = pytesseract.image_to_string(image)
-            return text
-        
-        else:
-            return None
-            
-    except Exception as e:
-        st.error(f"Error processing file: {str(e)}")
+    if file.type == "application/pdf":
+        reader = PdfReader(file)
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text()
+        return text
+    elif file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        doc = Document(file)
+        text = "\n".join([para.text for para in doc.paragraphs])
+        return text
+    else:
         return None
 
-# Function to generate formal letters
+# Function to generate formal letters (FIXED)
 def generate_formal_letter(language, recipient, subject, content):
     prompt = f"Write a formal letter in {language} to {recipient} about {subject}. Content: {content}"
     response = openai.ChatCompletion.create(
@@ -58,7 +42,7 @@ def translate_text(text, target_language):
     translation = translator.translate(text, dest=target_language)
     return translation.text
 
-# Function to explain document content
+# Function to explain document content (FIXED)
 def explain_document(text, query):
     prompt = f"The following is a document:\n{text}\n\nAnswer this query based on the document: {query}"
     response = openai.ChatCompletion.create(
@@ -88,10 +72,8 @@ def main():
 
     elif option == "Translate Document":
         st.header("Translate Document")
-        uploaded_file = st.file_uploader("Upload a document (PDF, Word, JPEG)", 
-                                       type=["pdf", "docx", "jpg", "jpeg"])
+        uploaded_file = st.file_uploader("Upload a document (PDF or Word)", type=["pdf", "docx"])
         target_language = st.selectbox("Select Target Language", ["English", "Chinese", "Malay"])
-        
         if uploaded_file and target_language:
             text = extract_text(uploaded_file)
             if text:
@@ -105,10 +87,8 @@ def main():
 
     elif option == "Explain Document":
         st.header("Explain Document")
-        uploaded_file = st.file_uploader("Upload a document (PDF, Word, JPEG)", 
-                                       type=["pdf", "docx", "jpg", "jpeg"])
+        uploaded_file = st.file_uploader("Upload a document (PDF or Word)", type=["pdf", "docx"])
         query = st.text_input("Enter your query about the document")
-        
         if uploaded_file and query:
             text = extract_text(uploaded_file)
             if text:
