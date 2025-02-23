@@ -5,15 +5,13 @@ from PyPDF2 import PdfReader
 from langdetect import detect
 from googletrans import Translator
 import easyocr
+import io
 
 # Set up OpenAI API key
 openai.api_key = st.secrets["API_KEY"]
 
 # Initialize translator
 translator = Translator()
-
-import easyocr
-import io
 
 # Initialize EasyOCR reader
 reader = easyocr.Reader(['en'])
