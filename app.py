@@ -28,7 +28,8 @@ def extract_text(file):
 
 # Function to generate formal letters (FIXED)
 def generate_formal_letter(language, recipient, subject, content):
-    prompt = f"Write a formal letter in {language} to {recipient} about {subject}. Content: {content}"
+    prompt = f"Write a formal letter in {language} to {recipient} about {subject}. 1. Short, direct, and professional answers
+2. Clear explanations in layman's terms when needed and necessary Content: {content}"
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": prompt}],
@@ -72,7 +73,7 @@ def main():
 
     elif option == "Translate Document":
         st.header("Translate Document")
-        uploaded_file = st.file_uploader("Upload a document (PDF or Word)", type=["pdf", "docx"])
+        uploaded_file = st.file_uploader("Upload a document (PDF or Word or JPEG)", type=["pdf", "docx", "jpeg"])
         target_language = st.selectbox("Select Target Language", ["English", "Chinese", "Malay"])
         if uploaded_file and target_language:
             text = extract_text(uploaded_file)
@@ -87,7 +88,7 @@ def main():
 
     elif option == "Explain Document":
         st.header("Explain Document")
-        uploaded_file = st.file_uploader("Upload a document (PDF or Word)", type=["pdf", "docx"])
+        uploaded_file = st.file_uploader("Upload a document (PDF or Word or JPEG)", type=["pdf", "docx", "jpeg"])
         query = st.text_input("Enter your query about the document")
         if uploaded_file and query:
             text = extract_text(uploaded_file)
