@@ -23,6 +23,10 @@ def extract_text(file):
         doc = Document(file)
         text = "\n".join([para.text for para in doc.paragraphs])
         return text
+    elif file.type == "image/jpeg" or file.type == "image/png":
+        image = Image.open(file)
+        text = pytesseract.image_to_string(image)
+        return text
     else:
         return None
 
