@@ -4,16 +4,14 @@ from docx import Document
 from PyPDF2 import PdfReader
 from langdetect import detect
 from googletrans import Translator
-from paddleocr import PaddleOCR
+from PIL import Image
+import io
 
 # Set up OpenAI API key
 openai.api_key = st.secrets["API_KEY"]
 
 # Initialize translator
 translator = Translator()
-
-# Initialize PaddleOCR for English, Chinese, and Malay
-ocr = PaddleOCR(lang='en', det=True, use_angle_cls=True)
 
 def extract_text(file):
     try:
@@ -32,17 +30,12 @@ def extract_text(file):
             return text if text else "No text could be extracted from the Word document."
 
         elif file.type in ["image/jpeg", "image/png"]:
-            image = Image.open(file)
-            result = ocr.ocr(image, cls=True)
-            extracted_text = ""
-            for line in result:
-                for word in line:
-                    extracted_text += word[1][0] + " "
-            return extracted_text.strip() if extracted_text else "No text could be extracted from the image."
+            image = Image.open(io.BytesIO(file.read()))
+            text = image.convert('L').tobytes().decode(errors='ignore')
+            return text if text.strip() else "No text could be extracted from the image."
 
         else:
             return "Unsupported file format."
-
     except Exception as e:
         return f"An error occurred while extracting text: {str(e)}"
 
