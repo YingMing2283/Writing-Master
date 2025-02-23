@@ -6,7 +6,7 @@ from langdetect import detect
 from googletrans import Translator
 
 # Set up OpenAI API key
-openai.api_key = st.secrets["API_KEY"]"
+openai.api_key = st.secrets["API_KEY"]
 
 # Initialize translator
 translator = Translator()
