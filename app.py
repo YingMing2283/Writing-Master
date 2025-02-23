@@ -16,7 +16,6 @@ translator = Translator()
 # Initialize EasyOCR reader
 reader = easyocr.Reader(['en'])
 
-# Function to extract text from uploaded files
 def extract_text(file):
     try:
         if file.type == "application/pdf":
@@ -27,22 +26,23 @@ def extract_text(file):
                 if extracted_text:
                     text += extracted_text
             return text if text else "No text could be extracted from the PDF."
-        
+
         elif file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
             doc = Document(file)
             text = "\n".join([para.text for para in doc.paragraphs])
             return text if text else "No text could be extracted from the Word document."
-        
+
         elif file.type in ["image/jpeg", "image/png"]:
-            reader = easyocr.Reader(['en'])
-            result = reader.readtext(file, detail=0)
+            # Convert uploaded image to bytes
+            image_bytes = io.BytesIO(file.getvalue())
+            result = reader.readtext(image_bytes.read(), detail=0)
             return " ".join(result) if result else "No text could be extracted from the image."
 
         else:
-            return "Unsupported file type."
-
+            return "Unsupported file format."
+    
     except Exception as e:
-        return f"An error occurred while extracting text: {str(e)}"
+        return f"An error occurred while extracting text: {e}"
 
 # Function to generate formal letters (FIXED)
 def generate_formal_letter(language, recipient, subject, content):
