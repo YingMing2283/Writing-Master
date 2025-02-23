@@ -4,4 +4,4 @@ python-docx==0.8.11
 PyPDF2==3.0.1
 langdetect==1.0.9
 googletrans==4.0.0-rc1
-tesseract
+pytesseract==0.3.10
