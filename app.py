@@ -33,16 +33,15 @@ def extract_text(file):
             return text if text else "No text could be extracted from the Word document."
 
         elif file.type in ["image/jpeg", "image/png"]:
-            # Convert image to bytes
-            image_bytes = io.BytesIO(file.getvalue())
-            result = reader.readtext(image_bytes.read(), detail=0)
+            # Convert uploaded image to bytes for EasyOCR
+            image_bytes = io.BytesIO(file.read())
+            result = reader.readtext(image_bytes.getvalue(), detail=0)
             return " ".join(result) if result else "No text could be extracted from the image."
 
         else:
             return "Unsupported file format."
-            
     except Exception as e:
-        return f"An error occurred while extracting text: {e}"
+        return f"An error occurred while extracting text: {str(e)}"
 
 # Function to generate formal letters (FIXED)
 def generate_formal_letter(language, recipient, subject, content):
