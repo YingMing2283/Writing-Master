@@ -2,10 +2,9 @@ import streamlit as st
 import openai
 from docx import Document
 from PyPDF2 import PdfReader
-from PIL import Image
-import pytesseract
 from langdetect import detect
 from googletrans import Translator
+import easyocr
 
 # Set up OpenAI API key
 openai.api_key = st.secrets["API_KEY"]
@@ -31,13 +30,13 @@ def extract_text(file):
             return text if text else "No text could be extracted from the Word document."
         
         elif file.type in ["image/jpeg", "image/png"]:
-            image = Image.open(file)
-            text = pytesseract.image_to_string(image)
-            return text if text.strip() else "No text could be extracted from the image."
-        
+            reader = easyocr.Reader(['en'])
+            result = reader.readtext(file, detail=0)
+            return " ".join(result) if result else "No text could be extracted from the image."
+
         else:
-            return "Unsupported file format. Please upload a PDF, Word document, or image."
-    
+            return "Unsupported file type."
+
     except Exception as e:
         return f"An error occurred while extracting text: {str(e)}"
 
