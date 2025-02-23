@@ -12,6 +12,12 @@ openai.api_key = st.secrets["API_KEY"]
 # Initialize translator
 translator = Translator()
 
+import easyocr
+import io
+
+# Initialize EasyOCR reader
+reader = easyocr.Reader(['en'])
+
 # Function to extract text from uploaded files
 def extract_text(file):
     try:
