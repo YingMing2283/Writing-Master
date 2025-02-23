@@ -76,7 +76,15 @@ def main():
     option = st.sidebar.selectbox("Choose a feature", ["Write Formal Letter", "Translate Document", "Explain Document"])
 
     if option == "Write Formal Letter":
-        # ... (keep existing code unchanged) ...
+        st.header("Write a Formal Letter")
+        language = st.selectbox("Select Language", ["English", "Chinese", "Malay"])
+        recipient = st.text_input("Recipient")
+        subject = st.text_input("Subject")
+        content = st.text_area("Content")
+        if st.button("Generate Letter"):
+            letter = generate_formal_letter(language, recipient, subject, content)
+            st.write("Generated Letter:")
+            st.write(letter)
 
     elif option == "Translate Document":
         st.header("Translate Document")
