@@ -107,4 +107,4 @@ def main():
                 st.error("Unsupported file format or unable to extract text.")
 
 if __name__ == "__main__":
-    main() (after write the letter, if i'm satified, can help me add in 1 button to download it in pdf? 
+    main() 
