@@ -1,12 +1,12 @@
 import os
 import streamlit as st
-from dotenv import load_dotenv
 from langchain.chains import AnalyzeDocumentChain
 from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader
 from langchain_openai import OpenAI
 from transformers import pipeline
 from functools import lru_cache
 
+# Initialize OpenAI with Streamlit secrets
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
 # Localization dictionary
@@ -36,19 +36,14 @@ TRANSLATIONS = {
         "en": "Translation Service",
         "ms": "Perkhidmatan Terjemahan"
     },
-    # Add more translations as needed
 }
 
 class TranslationSystem:
     def __init__(self):
         self.models = {
-            ('en', 'ms'): pipeline("translation_en_to_ms", 
-                                 model="Helsinki-NLP/opus-mt-en-ms"),
-            ('ms', 'en'): pipeline("translation_ms_to_en", 
-                                  model="Helsinki-NLP/opus-mt-ms-en"),
-            ('zh', 'en'): pipeline("translation_zh_to_en",
-                                 model="Helsinki-NLP/opus-mt-zh-en"),
-            # Add more language pairs
+            ('en', 'ms'): pipeline("translation", model="Helsinki-NLP/opus-mt-en-ms"),
+            ('ms', 'en'): pipeline("translation", model="Helsinki-NLP/opus-mt-ms-en"),
+            ('zh', 'en'): pipeline("translation", model="Helsinki-NLP/opus-mt-zh-en"),
         }
     
     @lru_cache(maxsize=100)
@@ -56,13 +51,11 @@ class TranslationSystem:
         if (source, target) in self.models:
             return self.models[(source, target)](text)[0]['translation_text']
         else:
-            # Fallback to OpenAI translation
             return self.gpt_translate(text, source, target)
     
     def gpt_translate(self, text: str, source: str, target: str) -> str:
-        prompt = f"Translate the following {source} text to {target}: {text}"
-        response = OpenAI().invoke(prompt)
-        return response.strip()
+        prompt = f"Translate this {source} text to {target}: {text}"
+        return OpenAI().invoke(prompt).strip()
 
 class DocumentAnalyzer:
     def __init__(self):
@@ -80,32 +73,29 @@ class DocumentAnalyzer:
             docs = loader.load()
             return self.qa_chain.run(input_documents=docs, question=question)
         except Exception as e:
-            return f"Error analyzing document: {str(e)}"
+            return f"Error: {str(e)}"
 
 def main():
     st.set_page_config(page_title="Company AI Assistant", layout="wide")
-    
-    # Initialize services
     translator = TranslationSystem()
     analyzer = DocumentAnalyzer()
-    
+
     # Language selection
     lang = st.sidebar.selectbox(
         "🌐 Select Language / 选择语言 / Pilih Bahasa",
         options=["en", "zh", "ms"],
         format_func=lambda x: {"en": "English", "zh": "中文", "ms": "Bahasa Melayu"}[x]
     )
-    
+
     # Function selection
     function = st.sidebar.radio(
         TRANSLATIONS["function_select"][lang],
         options=["write_letter", "document_analysis", "translation"],
         format_func=lambda x: TRANSLATIONS[x][lang]
     )
-    
-    # Main content
+
     st.header(TRANSLATIONS["title"][lang])
-    
+
     if function == "write_letter":
         handle_letter_writing(lang, translator)
     elif function == "document_analysis":
@@ -116,46 +106,39 @@ def main():
 def handle_letter_writing(lang: str, translator: TranslationSystem):
     st.subheader(TRANSLATIONS["write_letter"][lang])
     letter_type = st.selectbox(
-        "📝 Letter Type" if lang == "en" else 
-        "信件类型" if lang == "zh" else "Jenis Surat",
+        {"en": "📝 Letter Type", "zh": "信件类型", "ms": "Jenis Surat"}[lang],
         ["Official Inquiry", "Complaint", "Application"]
     )
     
-    # Letter content input
     content = st.text_area(
-        "📄 Enter letter details" if lang == "en" else 
-        "输入信件内容" if lang == "zh" else "Masukkan butiran surat",
+        {"en": "📄 Enter details", "zh": "输入内容", "ms": "Masukkan butiran"}[lang],
         height=200
     )
     
-    if st.button("Generate Letter"):
-        with st.spinner("Generating..."):
-            prompt = f"Generate a formal {letter_type} letter in {lang}: {content}"
-            response = OpenAI().invoke(prompt)
-            st.write(response)
+    if st.button({"en": "Generate", "zh": "生成", "ms": "Hasilkan"}[lang]):
+        with st.spinner({"en": "Generating...", "zh": "生成中...", "ms": "Menghasilkan..."}[lang]):
+            prompt = f"Generate formal {letter_type} letter in {lang}: {content}"
+            st.write(OpenAI().invoke(prompt))
 
 def handle_document_analysis(lang: str, analyzer: DocumentAnalyzer):
     st.subheader(TRANSLATIONS["document_analysis"][lang])
     uploaded_file = st.file_uploader(
-        "📤 Upload Document (PDF/DOCX)" if lang == "en" else 
-        "上传文件 (PDF/DOCX)" if lang == "zh" else "Muat Naik Dokumen (PDF/DOCX)",
+        {"en": "📤 Upload (PDF/DOCX)", "zh": "上传文件", "ms": "Muat Naik Dokumen"}[lang],
         type=["pdf", "docx"]
     )
     
     if uploaded_file:
         question = st.text_input(
-            "❓ Ask about the document" if lang == "en" else 
-            "关于文档的问题" if lang == "zh" else "Soalan tentang dokumen"
+            {"en": "❓ Ask about document", "zh": "文档问题", "ms": "Soalan dokumen"}[lang]
         )
         
         if question:
-            with st.spinner("Analyzing..."):
+            with st.spinner({"en": "Analyzing...", "zh": "分析中...", "ms": "Menganalisis..."}[lang]):
                 temp_path = f"temp_{uploaded_file.name}"
                 with open(temp_path, "wb") as f:
                     f.write(uploaded_file.getbuffer())
-                result = analyzer.analyze(temp_path, question)
+                st.write(analyzer.analyze(temp_path, question))
                 os.remove(temp_path)
-                st.write(result)
 
 def handle_translation(lang: str, translator: TranslationSystem):
     st.subheader(TRANSLATIONS["translation"][lang])
@@ -163,28 +146,26 @@ def handle_translation(lang: str, translator: TranslationSystem):
     
     with col1:
         source_lang = st.selectbox(
-            "From" if lang == "en" else "源语言" if lang == "zh" else "Dari",
+            {"en": "From", "zh": "源语言", "ms": "Dari"}[lang],
             ["en", "zh", "ms"],
             format_func=lambda x: {"en": "English", "zh": "中文", "ms": "Bahasa Melayu"}[x]
         )
     
     with col2:
         target_lang = st.selectbox(
-            "To" if lang == "en" else "目标语言" if lang == "zh" else "Ke",
+            {"en": "To", "zh": "目标语言", "ms": "Ke"}[lang],
             ["en", "zh", "ms"],
             format_func=lambda x: {"en": "English", "zh": "中文", "ms": "Bahasa Melayu"}[x]
         )
     
     text = st.text_area(
-        "📝 Enter text to translate" if lang == "en" else 
-        "输入要翻译的文本" if lang == "zh" else "Masukkan teks untuk diterjemahkan",
+        {"en": "📝 Text to translate", "zh": "输入文本", "ms": "Teks untuk terjemah"}[lang],
         height=150
     )
     
-    if st.button("Translate"):
-        with st.spinner("Translating..."):
-            translated = translator.translate(text, source_lang, target_lang)
-            st.write(translated)
+    if st.button({"en": "Translate", "zh": "翻译", "ms": "Terjemah"}[lang]):
+        with st.spinner({"en": "Translating...", "zh": "翻译中...", "ms": "Menterjemah..."}[lang]):
+            st.write(translator.translate(text, source_lang, target_lang))
 
 if __name__ == "__main__":
     main()
