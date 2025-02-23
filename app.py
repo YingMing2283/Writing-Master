@@ -1,171 +1,104 @@
-import os
 import streamlit as st
-from langchain.chains import AnalyzeDocumentChain
-from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader
-from langchain_openai import OpenAI
-from transformers import pipeline
-from functools import lru_cache
+import openai
+from docx import Document
+from PyPDF2 import PdfReader
+from langdetect import detect
+from googletrans import Translator
 
-# Initialize OpenAI with Streamlit secrets
-os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+# Set up OpenAI API key
+openai.api_key = st.secrets["API_KEY"]
 
-# Localization dictionary
-TRANSLATIONS = {
-    "title": {
-        "zh": "公司智能助手",
-        "en": "Company AI Assistant",
-        "ms": "Pembantu AI Syarikat"
-    },
-    "function_select": {
-        "zh": "选择功能",
-        "en": "Select Function",
-        "ms": "Pilih Fungsi"
-    },
-    "write_letter": {
-        "zh": "撰写正式信件",
-        "en": "Write Formal Letter",
-        "ms": "Tulis Surat Rasmi"
-    },
-    "document_analysis": {
-        "zh": "文件分析",
-        "en": "Document Analysis",
-        "ms": "Analisis Dokumen"
-    },
-    "translation": {
-        "zh": "翻译服务",
-        "en": "Translation Service",
-        "ms": "Perkhidmatan Terjemahan"
-    },
-}
+# Initialize translator
+translator = Translator()
 
-class TranslationSystem:
-    def __init__(self):
-        self.models = {
-            ('en', 'ms'): pipeline("translation", model="Helsinki-NLP/opus-mt-en-ms"),
-            ('ms', 'en'): pipeline("translation", model="Helsinki-NLP/opus-mt-ms-en"),
-            ('zh', 'en'): pipeline("translation", model="Helsinki-NLP/opus-mt-zh-en"),
-        }
-    
-    @lru_cache(maxsize=100)
-    def translate(self, text: str, source: str, target: str) -> str:
-        if (source, target) in self.models:
-            return self.models[(source, target)](text)[0]['translation_text']
-        else:
-            return self.gpt_translate(text, source, target)
-    
-    def gpt_translate(self, text: str, source: str, target: str) -> str:
-        prompt = f"Translate this {source} text to {target}: {text}"
-        return OpenAI().invoke(prompt).strip()
+# Function to extract text from uploaded files
+def extract_text(file):
+    if file.type == "application/pdf":
+        reader = PdfReader(file)
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text()
+        return text
+    elif file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        doc = Document(file)
+        text = "\n".join([para.text for para in doc.paragraphs])
+        return text
+    else:
+        return None
 
-class DocumentAnalyzer:
-    def __init__(self):
-        self.qa_chain = AnalyzeDocumentChain(llm=OpenAI(temperature=0))
-    
-    def analyze(self, file_path: str, question: str) -> str:
-        try:
-            if file_path.endswith('.pdf'):
-                loader = PyPDFLoader(file_path)
-            elif file_path.endswith('.docx'):
-                loader = Docx2txtLoader(file_path)
-            else:
-                return "Unsupported file format"
-            
-            docs = loader.load()
-            return self.qa_chain.run(input_documents=docs, question=question)
-        except Exception as e:
-            return f"Error: {str(e)}"
+# Function to generate formal letters
+def generate_formal_letter(language, recipient, subject, content):
+    prompt = f"Write a formal letter in {language} to {recipient} about {subject}. Content: {content}"
+    response = openai.Completion.create(
+        engine="gpt-3.5-turbo",
+        prompt=prompt,
+        max_tokens=500,
+        temperature=0.7
+    )
+    return response.choices[0].text.strip()
 
+# Function to translate text
+def translate_text(text, target_language):
+    translation = translator.translate(text, dest=target_language)
+    return translation.text
+
+# Function to explain document content
+def explain_document(text, query):
+    prompt = f"The following is a document:\n{text}\n\nAnswer this query based on the document: {query}"
+    response = openai.Completion.create(
+        engine="gpt-3.5-turbo",
+        prompt=prompt,
+        max_tokens=500,
+        temperature=0.7
+    )
+    return response.choices[0].text.strip()
+
+# Streamlit app
 def main():
-    st.set_page_config(page_title="Company AI Assistant", layout="wide")
-    translator = TranslationSystem()
-    analyzer = DocumentAnalyzer()
+    st.title("Company AI Assistant")
+    st.sidebar.header("Navigation")
+    option = st.sidebar.selectbox("Choose a feature", ["Write Formal Letter", "Translate Document", "Explain Document"])
 
-    # Language selection
-    lang = st.sidebar.selectbox(
-        "🌐 Select Language / 选择语言 / Pilih Bahasa",
-        options=["en", "zh", "ms"],
-        format_func=lambda x: {"en": "English", "zh": "中文", "ms": "Bahasa Melayu"}[x]
-    )
+    if option == "Write Formal Letter":
+        st.header("Write a Formal Letter")
+        language = st.selectbox("Select Language", ["English", "Chinese", "Malay"])
+        recipient = st.text_input("Recipient")
+        subject = st.text_input("Subject")
+        content = st.text_area("Content")
+        if st.button("Generate Letter"):
+            letter = generate_formal_letter(language, recipient, subject, content)
+            st.write("Generated Letter:")
+            st.write(letter)
 
-    # Function selection
-    function = st.sidebar.radio(
-        TRANSLATIONS["function_select"][lang],
-        options=["write_letter", "document_analysis", "translation"],
-        format_func=lambda x: TRANSLATIONS[x][lang]
-    )
+    elif option == "Translate Document":
+        st.header("Translate Document")
+        uploaded_file = st.file_uploader("Upload a document (PDF or Word)", type=["pdf", "docx"])
+        target_language = st.selectbox("Select Target Language", ["English", "Chinese", "Malay"])
+        if uploaded_file and target_language:
+            text = extract_text(uploaded_file)
+            if text:
+                st.write("Extracted Text:")
+                st.write(text)
+                translated_text = translate_text(text, target_language)
+                st.write("Translated Text:")
+                st.write(translated_text)
+            else:
+                st.error("Unsupported file format or unable to extract text.")
 
-    st.header(TRANSLATIONS["title"][lang])
-
-    if function == "write_letter":
-        handle_letter_writing(lang, translator)
-    elif function == "document_analysis":
-        handle_document_analysis(lang, analyzer)
-    elif function == "translation":
-        handle_translation(lang, translator)
-
-def handle_letter_writing(lang: str, translator: TranslationSystem):
-    st.subheader(TRANSLATIONS["write_letter"][lang])
-    letter_type = st.selectbox(
-        {"en": "📝 Letter Type", "zh": "信件类型", "ms": "Jenis Surat"}[lang],
-        ["Official Inquiry", "Complaint", "Application"]
-    )
-    
-    content = st.text_area(
-        {"en": "📄 Enter details", "zh": "输入内容", "ms": "Masukkan butiran"}[lang],
-        height=200
-    )
-    
-    if st.button({"en": "Generate", "zh": "生成", "ms": "Hasilkan"}[lang]):
-        with st.spinner({"en": "Generating...", "zh": "生成中...", "ms": "Menghasilkan..."}[lang]):
-            prompt = f"Generate formal {letter_type} letter in {lang}: {content}"
-            st.write(OpenAI().invoke(prompt))
-
-def handle_document_analysis(lang: str, analyzer: DocumentAnalyzer):
-    st.subheader(TRANSLATIONS["document_analysis"][lang])
-    uploaded_file = st.file_uploader(
-        {"en": "📤 Upload (PDF/DOCX)", "zh": "上传文件", "ms": "Muat Naik Dokumen"}[lang],
-        type=["pdf", "docx"]
-    )
-    
-    if uploaded_file:
-        question = st.text_input(
-            {"en": "❓ Ask about document", "zh": "文档问题", "ms": "Soalan dokumen"}[lang]
-        )
-        
-        if question:
-            with st.spinner({"en": "Analyzing...", "zh": "分析中...", "ms": "Menganalisis..."}[lang]):
-                temp_path = f"temp_{uploaded_file.name}"
-                with open(temp_path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
-                st.write(analyzer.analyze(temp_path, question))
-                os.remove(temp_path)
-
-def handle_translation(lang: str, translator: TranslationSystem):
-    st.subheader(TRANSLATIONS["translation"][lang])
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        source_lang = st.selectbox(
-            {"en": "From", "zh": "源语言", "ms": "Dari"}[lang],
-            ["en", "zh", "ms"],
-            format_func=lambda x: {"en": "English", "zh": "中文", "ms": "Bahasa Melayu"}[x]
-        )
-    
-    with col2:
-        target_lang = st.selectbox(
-            {"en": "To", "zh": "目标语言", "ms": "Ke"}[lang],
-            ["en", "zh", "ms"],
-            format_func=lambda x: {"en": "English", "zh": "中文", "ms": "Bahasa Melayu"}[x]
-        )
-    
-    text = st.text_area(
-        {"en": "📝 Text to translate", "zh": "输入文本", "ms": "Teks untuk terjemah"}[lang],
-        height=150
-    )
-    
-    if st.button({"en": "Translate", "zh": "翻译", "ms": "Terjemah"}[lang]):
-        with st.spinner({"en": "Translating...", "zh": "翻译中...", "ms": "Menterjemah..."}[lang]):
-            st.write(translator.translate(text, source_lang, target_lang))
+    elif option == "Explain Document":
+        st.header("Explain Document")
+        uploaded_file = st.file_uploader("Upload a document (PDF or Word)", type=["pdf", "docx"])
+        query = st.text_input("Enter your query about the document")
+        if uploaded_file and query:
+            text = extract_text(uploaded_file)
+            if text:
+                st.write("Extracted Text:")
+                st.write(text)
+                explanation = explain_document(text, query)
+                st.write("Explanation:")
+                st.write(explanation)
+            else:
+                st.error("Unsupported file format or unable to extract text.")
 
 if __name__ == "__main__":
     main()
