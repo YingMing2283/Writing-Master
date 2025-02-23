@@ -26,32 +26,32 @@ def extract_text(file):
     else:
         return None
 
-# Function to generate formal letters
+# Function to generate formal letters (FIXED)
 def generate_formal_letter(language, recipient, subject, content):
     prompt = f"Write a formal letter in {language} to {recipient} about {subject}. Content: {content}"
-    response = openai.Completion.create(
-        engine="gpt-3.5-turbo",
-        prompt=prompt,
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": prompt}],
         max_tokens=500,
         temperature=0.7
     )
-    return response.choices[0].text.strip()
+    return response.choices[0].message.content.strip()
 
 # Function to translate text
 def translate_text(text, target_language):
     translation = translator.translate(text, dest=target_language)
     return translation.text
 
-# Function to explain document content
+# Function to explain document content (FIXED)
 def explain_document(text, query):
     prompt = f"The following is a document:\n{text}\n\nAnswer this query based on the document: {query}"
-    response = openai.Completion.create(
-        engine="gpt-3.5-turbo",
-        prompt=prompt,
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": prompt}],
         max_tokens=500,
         temperature=0.7
     )
-    return response.choices[0].text.strip()
+    return response.choices[0].message.content.strip()
 
 # Streamlit app
 def main():
