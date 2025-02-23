@@ -13,7 +13,8 @@ openai.api_key = st.secrets["API_KEY"]
 # Initialize translator
 translator = Translator()
 
-reader = easyocr.Reader(['en', 'ch_sim', 'ms'])
+# Initialize EasyOCR for English, Chinese, and Malay, forcing CPU usage
+reader = easyocr.Reader(['en', 'ch_sim', 'ms'], gpu=False)
 
 def extract_text(file):
     try:
