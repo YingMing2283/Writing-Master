@@ -2,7 +2,8 @@ import streamlit as st
 import openai
 from docx import Document
 from PyPDF2 import PdfReader
-from fpdf import FPDF  # For generating PDFs
+from fpdf import FPDF
+from datetime import datetime  # For today's date
 
 # Set up OpenAI API key
 openai.api_key = st.secrets["API_KEY"]
@@ -24,18 +25,27 @@ def extract_text(file):
 
 # Function to generate formal letters
 def generate_formal_letter(language, recipient, recipient_address, sender, sender_address, subject, content):
+    # Format recipient and sender addresses with line breaks
+    formatted_recipient_address = recipient_address.replace(", ", ",\n")
+    formatted_sender_address = sender_address.replace(", ", ",\n")
+
+    # Get today's date in the format: Day Month Year (e.g., 25 October 2023)
+    today_date = datetime.today().strftime("%d %B %Y")
+
     prompt = (
         f"Write a formal letter in {language} with the following details:\n"
         f"Sender: {sender}\n"
-        f"Sender Address: {sender_address}\n"
+        f"Sender Address: {formatted_sender_address}\n"
         f"Recipient: {recipient}\n"
-        f"Recipient Address: {recipient_address}\n"
+        f"Recipient Address: {formatted_recipient_address}\n"
+        f"Date: {today_date}\n"
         f"Subject: {subject}\n"
         f"Content: {content}\n\n"
         "Requirements:\n"
-        "1. Use a professional letter format.\n"
+        "1. Use a professional letter format with proper address formatting.\n"
         "2. Keep the answer short, direct, and professional.\n"
-        "3. Provide clear explanations in layman's terms when necessary."
+        "3. Include the date at the top of the letter.\n"
+        "4. Provide clear explanations in layman's terms when necessary."
     )
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -86,9 +96,9 @@ def main():
         st.header("Write a Formal Letter")
         language = st.selectbox("Select Language", ["English", "Chinese", "Malay"])
         recipient = st.text_input("Recipient Name")
-        recipient_address = st.text_area("Recipient Address")
+        recipient_address = st.text_area("Recipient Address (e.g., Andy Law\nLot 4353, Taman Niaga\n98000 Miri\nSarawak)")
         sender = st.text_input("Sender Name")
-        sender_address = st.text_area("Sender Address")
+        sender_address = st.text_area("Sender Address (e.g., Majlis Bandaraya Miri\nLot 1234, Marina Bay\n96100 Miri\nSarawak)")
         subject = st.text_input("Subject")
         content = st.text_area("Content")
         if st.button("Generate Letter"):
