@@ -92,7 +92,7 @@ def main():
     st.sidebar.header("Navigation")
     option = st.sidebar.selectbox("Choose a feature", ["Write Formal Letter", "Explain Document"])
 
-    if option == "Write a Formal Letter":
+    if option == "Write Formal Letter":
         st.header("WriteWise")
         language = st.selectbox("Select Language", ["English", "Chinese", "Malay"])
         recipient = st.text_input("Recipient Name")
@@ -117,7 +117,7 @@ def main():
                     mime="application/pdf"
                 )
 
-    elif option == "Summarise a Document":
+    elif option == "Summarise Document":
         st.header("DocBuddy")
         uploaded_file = st.file_uploader("Upload a document (PDF or Word)", type=["pdf", "docx"])
         if uploaded_file:
