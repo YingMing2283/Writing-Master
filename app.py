@@ -92,7 +92,7 @@ def main():
     st.sidebar.header("Navigation")
     option = st.sidebar.selectbox("Choose a feature", ["Write Formal Letter", "Explain Document"])
 
-    if option == "Write Formal Letter":
+    if option == "Write a Formal Letter":
         st.header("WriteWise")
         language = st.selectbox("Select Language", ["English", "Chinese", "Malay"])
         recipient = st.text_input("Recipient Name")
@@ -117,7 +117,7 @@ def main():
                     mime="application/pdf"
                 )
 
-    elif option == "Explain Document":
+    elif option == "DocBuddy - Summarise Document":
         st.header("DocBuddy")
         uploaded_file = st.file_uploader("Upload a document (PDF or Word)", type=["pdf", "docx"])
         if uploaded_file:
@@ -135,7 +135,7 @@ def main():
                     st.write(summary)
 
                 # Chatbot-like interface for further queries
-                st.subheader("Chat with Document")
+                st.subheader("Chat with Me")
                 user_query = st.text_input("Ask a question about the document")
                 if user_query:
                     explanation = explain_document(text, user_query)
