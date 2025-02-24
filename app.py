@@ -117,7 +117,7 @@ def main():
                     mime="application/pdf"
                 )
 
-    elif option == "DocBuddy - Summarise Document":
+    elif option == "Summarise a Document":
         st.header("DocBuddy")
         uploaded_file = st.file_uploader("Upload a document (PDF or Word)", type=["pdf", "docx"])
         if uploaded_file:
