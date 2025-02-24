@@ -2,15 +2,10 @@ import streamlit as st
 import openai
 from docx import Document
 from PyPDF2 import PdfReader
-from langdetect import detect
-from googletrans import Translator
 from fpdf import FPDF  # For generating PDFs
 
 # Set up OpenAI API key
 openai.api_key = st.secrets["API_KEY"]
-
-# Initialize translator
-translator = Translator()
 
 # Function to extract text from uploaded files
 def extract_text(file):
@@ -28,13 +23,19 @@ def extract_text(file):
         return None
 
 # Function to generate formal letters
-def generate_formal_letter(language, recipient, subject, content):
+def generate_formal_letter(language, recipient, recipient_address, sender, sender_address, subject, content):
     prompt = (
-        f"Write a formal letter in {language} to {recipient} about '{subject}'.\n"
+        f"Write a formal letter in {language} with the following details:\n"
+        f"Sender: {sender}\n"
+        f"Sender Address: {sender_address}\n"
+        f"Recipient: {recipient}\n"
+        f"Recipient Address: {recipient_address}\n"
+        f"Subject: {subject}\n"
         f"Content: {content}\n\n"
         "Requirements:\n"
-        "1. Keep the answer short, direct, and professional.\n"
-        "2. Provide clear explanations in layman's terms when necessary."
+        "1. Use a professional letter format.\n"
+        "2. Keep the answer short, direct, and professional.\n"
+        "3. Provide clear explanations in layman's terms when necessary."
     )
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -44,11 +45,6 @@ def generate_formal_letter(language, recipient, subject, content):
     )
     return response.choices[0].message.content.strip()
 
-# Function to translate text
-def translate_text(text, target_language):
-    translation = translator.translate(text, dest=target_language)
-    return translation.text
-
 # Function to explain document content
 def explain_document(text, query):
     prompt = f"The following is a document:\n{text}\n\nAnswer this query based on the document: {query}"
@@ -57,6 +53,17 @@ def explain_document(text, query):
         messages=[{"role": "user", "content": prompt}],
         max_tokens=500,
         temperature=0.7
+    )
+    return response.choices[0].message.content.strip()
+
+# Function to summarize document content
+def summarize_document(text, language):
+    prompt = f"Summarize the following document in {language}:\n{text}\n\nKeep the summary concise and clear."
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=300,
+        temperature=0.5
     )
     return response.choices[0].message.content.strip()
 
@@ -73,16 +80,19 @@ def create_pdf(text, filename):
 def main():
     st.title("Company AI Assistant")
     st.sidebar.header("Navigation")
-    option = st.sidebar.selectbox("Choose a feature", ["Write Formal Letter", "Translate Document", "Explain Document"])
+    option = st.sidebar.selectbox("Choose a feature", ["Write Formal Letter", "Explain Document"])
 
     if option == "Write Formal Letter":
         st.header("Write a Formal Letter")
         language = st.selectbox("Select Language", ["English", "Chinese", "Malay"])
-        recipient = st.text_input("Recipient")
+        recipient = st.text_input("Recipient Name")
+        recipient_address = st.text_area("Recipient Address")
+        sender = st.text_input("Sender Name")
+        sender_address = st.text_area("Sender Address")
         subject = st.text_input("Subject")
         content = st.text_area("Content")
         if st.button("Generate Letter"):
-            letter = generate_formal_letter(language, recipient, subject, content)
+            letter = generate_formal_letter(language, recipient, recipient_address, sender, sender_address, subject, content)
             st.write("Generated Letter:")
             st.write(letter)
 
@@ -97,33 +107,30 @@ def main():
                     mime="application/pdf"
                 )
 
-    elif option == "Translate Document":
-        st.header("Translate Document")
-        uploaded_file = st.file_uploader("Upload a document (PDF or Word)", type=["pdf", "docx"])
-        target_language = st.selectbox("Select Target Language", ["English", "Chinese", "Malay"])
-        if uploaded_file and target_language:
-            text = extract_text(uploaded_file)
-            if text:
-                st.write("Extracted Text:")
-                st.write(text)
-                translated_text = translate_text(text, target_language)
-                st.write("Translated Text:")
-                st.write(translated_text)
-            else:
-                st.error("Unsupported file format or unable to extract text.")
-
     elif option == "Explain Document":
         st.header("Explain Document")
         uploaded_file = st.file_uploader("Upload a document (PDF or Word)", type=["pdf", "docx"])
-        query = st.text_input("Enter your query about the document")
-        if uploaded_file and query:
+        if uploaded_file:
             text = extract_text(uploaded_file)
             if text:
                 st.write("Extracted Text:")
                 st.write(text)
-                explanation = explain_document(text, query)
-                st.write("Explanation:")
-                st.write(explanation)
+
+                # Generate summary
+                st.subheader("Document Summary")
+                summary_language = st.selectbox("Select Summary Language", ["English", "Chinese", "Malay"])
+                if st.button("Generate Summary"):
+                    summary = summarize_document(text, summary_language)
+                    st.write("Summary:")
+                    st.write(summary)
+
+                # Chatbot-like interface for further queries
+                st.subheader("Chat with Document")
+                user_query = st.text_input("Ask a question about the document")
+                if user_query:
+                    explanation = explain_document(text, user_query)
+                    st.write("Answer:")
+                    st.write(explanation)
             else:
                 st.error("Unsupported file format or unable to extract text.")
 
