@@ -90,9 +90,9 @@ def create_pdf(text, filename):
 def main():
     st.title("Mr. Spark")
     st.sidebar.header("Navigation")
-    option = st.sidebar.selectbox("Choose a feature", ["Write Formal Letter", "Explain Document"])
+    option = st.sidebar.selectbox("Choose a feature", ["Write a Formal Letter", "Summarize a Document"])
 
-    if option == "Write Formal Letter":
+    if option == "Write a Formal Letter":
         st.header("WriteWise")
         language = st.selectbox("Select Language", ["English", "Chinese", "Malay"])
         recipient = st.text_input("Recipient Name")
@@ -117,7 +117,7 @@ def main():
                     mime="application/pdf"
                 )
 
-    elif option == "Summarise Document":
+    elif option == "Summarize a Document":
         st.header("DocBuddy")
         uploaded_file = st.file_uploader("Upload a document (PDF or Word)", type=["pdf", "docx"])
         if uploaded_file:
