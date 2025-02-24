@@ -106,16 +106,7 @@ def main():
             
             # Display the letter with bold formatting for recipient, sender, date, and title
             st.write("Generated Letter:")
-            formatted_letter = (
-                f"**{sender}**\n"
-                f"{sender_address.replace(', ', ',\n')}\n\n"
-                f"**{datetime.today().strftime('%d %B %Y')}**\n\n"
-                f"**{recipient}**\n"
-                f"{recipient_address.replace(', ', ',\n')}\n\n"
-                f"**Subject: {subject}**\n\n"
-                f"{letter}"
-            )
-            st.markdown(formatted_letter)
+            st.markdown(f"**{sender}**\n{sender_address.replace(', ', ',\n')}\n\n**{datetime.today().strftime('%d %B %Y')}**\n\n**{recipient}**\n{recipient_address.replace(', ', ',\n')}\n\n**Subject: {subject}**\n\n{letter}")
 
             # Create a PDF and provide a download button
             pdf_filename = "formal_letter.pdf"
