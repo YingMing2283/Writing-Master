@@ -88,12 +88,12 @@ def create_pdf(text, filename):
 
 # Streamlit app
 def main():
-    st.title("Company AI Assistant")
+    st.title("Mr. Spark")
     st.sidebar.header("Navigation")
     option = st.sidebar.selectbox("Choose a feature", ["Write Formal Letter", "Explain Document"])
 
     if option == "Write Formal Letter":
-        st.header("Write a Formal Letter")
+        st.header("WriteWise")
         language = st.selectbox("Select Language", ["English", "Chinese", "Malay"])
         recipient = st.text_input("Recipient Name")
         recipient_address = st.text_area("Recipient Address (e.g., Lebron James\nLot 1234, Taman Niaga\n98000 Sibu\nSarawak)")
@@ -118,7 +118,7 @@ def main():
                 )
 
     elif option == "Explain Document":
-        st.header("Explain Document")
+        st.header("DocBuddy")
         uploaded_file = st.file_uploader("Upload a document (PDF or Word)", type=["pdf", "docx"])
         if uploaded_file:
             text = extract_text(uploaded_file)
