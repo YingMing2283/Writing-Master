@@ -96,9 +96,9 @@ def main():
         st.header("Write a Formal Letter")
         language = st.selectbox("Select Language", ["English", "Chinese", "Malay"])
         recipient = st.text_input("Recipient Name")
-        recipient_address = st.text_area("Recipient Address (e.g., Andy Law\nLot 4353, Taman Niaga\n98000 Miri\nSarawak)")
+        recipient_address = st.text_area("Recipient Address (e.g., Tang Ying Ming\nLot 1234, Taman Niaga\n98000 Miri\nSarawak)")
         sender = st.text_input("Sender Name")
-        sender_address = st.text_area("Sender Address (e.g., Majlis Bandaraya Miri\nLot 1234, Marina Bay\n96100 Miri\nSarawak)")
+        sender_address = st.text_area("Sender Address (e.g., Majlis Bandaraya Miri\nLot 1234, Marina Bay\n98000 Miri\nSarawak)")
         subject = st.text_input("Subject")
         content = st.text_area("Content")
         if st.button("Generate Letter"):
