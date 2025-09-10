@@ -1,26 +1,39 @@
 import streamlit as st
 import pandas as pd
 import os
-from openai import OpenAI
+from datetime import datetime
+import json
+import openai
 
-# Initialize GPT API
-client = st.secrets["API_KEY"]
-
-# Target folder to save CSVs
+# ---------------------
+# CONFIG
+# ---------------------
+st.set_page_config(page_title="KRI Risk Management", layout="wide")
 OUTPUT_FOLDER = "kri_csv_output"
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
+# ---------------------
+# OPENAI SETUP
+# ---------------------
+openai.api_key = st.secrets["openai"]["api_key"]
+
+# ---------------------
+# TITLE
+# ---------------------
 st.title("KRI Risk Management - Excel Upload & Auto CSV")
 
-# Step 1: Upload Excel
+# ---------------------
+# STEP 1: UPLOAD EXCEL
+# ---------------------
 uploaded_file = st.file_uploader("Upload your KRI Excel file", type=["xlsx"])
 if uploaded_file:
-    # Read the Excel file
     df = pd.read_excel(uploaded_file)
     st.subheader("Original Data Preview")
     st.dataframe(df)
 
-    # Step 2: GPT API to identify columns
+    # ---------------------
+    # STEP 2: GPT COLUMN MAPPING
+    # ---------------------
     st.info("AI is identifying the relevant KRI columns...")
 
     prompt = f"""
@@ -30,7 +43,7 @@ if uploaded_file:
     Map the columns to the following required KRI fields:
     Department, KRI Name, Value, Target, Status, Entry Date, Responsible Person.
 
-    Reply with a JSON mapping like:
+    Reply ONLY with a JSON mapping like:
     {{
       "Department": "<original column name>",
       "KRI Name": "<original column name>",
@@ -42,39 +55,40 @@ if uploaded_file:
     }}
     """
 
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}]
-    )
-
-    mapping_text = response.choices[0].message.content
-    st.subheader("GPT Suggested Column Mapping")
-    st.text(mapping_text)
-
-    # Step 3: Let user confirm mapping (simplified)
-    st.subheader("Verify / Correct Mapping")
-    import json
     try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        mapping_text = response.choices[0].message["content"]
+        st.subheader("GPT Suggested Column Mapping")
+        st.text(mapping_text)
+
         mapping = json.loads(mapping_text)
-    except:
-        st.warning("Failed to parse GPT response. Please edit manually.")
+    except Exception as e:
+        st.warning(f"GPT mapping failed, using original columns. Error: {e}")
         mapping = {col: col for col in df.columns}
 
-    # Display editable mapping
+    # ---------------------
+    # STEP 3: VERIFY / EDIT MAPPING
+    # ---------------------
+    st.subheader("Verify / Correct Mapping")
     edited_mapping = {}
     for field, col in mapping.items():
         edited_col = st.text_input(f"{field} column:", value=col)
         edited_mapping[field] = edited_col
 
-    # Step 4: Generate standardized CSV
+    # ---------------------
+    # STEP 4: GENERATE STANDARDIZED CSV
+    # ---------------------
     if st.button("Generate CSV"):
         try:
             standard_df = pd.DataFrame()
             for field, col in edited_mapping.items():
                 standard_df[field] = df[col]
 
-            # Optional: calculate Status automatically if missing
-            if "Status" in standard_df.columns:
+            # Auto-calculate Status if missing or unreliable
+            if "Status" in standard_df.columns and "Value" in standard_df.columns and "Target" in standard_df.columns:
                 standard_df["Status"] = standard_df.apply(
                     lambda row: "Green" if row["Value"] >= row["Target"]
                     else "Yellow" if row["Value"] >= 0.8*row["Target"]
@@ -82,8 +96,9 @@ if uploaded_file:
                     axis=1
                 )
 
-            # Save CSV to folder
-            output_path = os.path.join(OUTPUT_FOLDER, "kri_standardized.csv")
+            # Save CSV with timestamp
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_path = os.path.join(OUTPUT_FOLDER, f"kri_standardized_{timestamp}.csv")
             standard_df.to_csv(output_path, index=False)
             st.success(f"CSV generated and saved to {output_path}")
             st.dataframe(standard_df)
